@@ -1,10 +1,6 @@
 module.exports = function (api) {
   api.cache(true);
 
-  const envPath = '.env';
-  const root = './app';
-  process.env.EXPO_ROUTER_APP_ROOT = root;
-
   return {
     presets: [
       ['babel-preset-expo', { lazyImports: true }]
@@ -17,8 +13,8 @@ module.exports = function (api) {
           root: ['.'],
           extensions: ['.ios.js', '.android.js', '.js', '.ts', '.tsx', '.json'],
           alias: {
-            '@': root,
-            '@app': root,
+            '@': './app',
+            '@app': './app',
           }
         }
       ]
