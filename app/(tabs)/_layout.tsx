@@ -13,11 +13,11 @@ const { width, height } = Dimensions.get('window');
 export default function TabLayout() {
   const screenOptions: BottomTabNavigationOptions = {
     headerShown: false,
-    tabBarActiveTintColor: '#FFFFFF',
-    tabBarInactiveTintColor: '#E0E7FF',
+    tabBarActiveTintColor: '#A855F7',
+    tabBarInactiveTintColor: '#9CA3AF',
     tabBarStyle: {
-      backgroundColor: '#3B82F6',
-      borderTopColor: '#3B82F6',
+      backgroundColor: '#374151',
+      borderTopColor: '#374151',
       paddingTop: 8,
       paddingBottom: Platform.select({ 
         android: 12, // Reduced from 8 to bring it up
@@ -35,7 +35,7 @@ export default function TabLayout() {
       elevation: 8, // Add elevation for Android
       shadowColor: '#000', // Add shadow for iOS
       shadowOffset: { width: 0, height: -2 },
-      shadowOpacity: 0.1,
+      shadowOpacity: 0.3,
       shadowRadius: 8,
     },
     tabBarLabelStyle: {

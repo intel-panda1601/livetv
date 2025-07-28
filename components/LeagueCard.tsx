@@ -42,7 +42,7 @@ export default function LeagueCard({ league, onPress }: LeagueCardProps) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(168, 85, 247, 0.1)',
     borderRadius: 16,
     marginHorizontal: 16,
     marginVertical: 8,
@@ -53,7 +53,9 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 5,
     borderLeftWidth: 4,
-    borderLeftColor: '#3B82F6',
+    borderLeftColor: '#A855F7',
+    borderWidth: 1,
+    borderColor: 'rgba(168, 85, 247, 0.2)',
   },
   header: {
     flexDirection: 'row',
@@ -70,7 +72,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'rgba(168, 85, 247, 0.2)',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 16,
@@ -83,12 +85,12 @@ const styles = StyleSheet.create({
     fontFamily: 'Cocogoose',
     fontWeight: 'bold',
     fontStyle: 'italic',
-    color: '#6B46C1',
+    color: '#A855F7',
     marginBottom: 4,
   },
   season: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#C084FC',
   },
   footer: {
     flexDirection: 'row',
@@ -102,6 +104,6 @@ const styles = StyleSheet.create({
   },
   matchCount: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#C084FC',
   },
 });

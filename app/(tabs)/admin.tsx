@@ -231,7 +231,7 @@ export default function AdminScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#522e8e',
+    backgroundColor: '#000000',
   },
   headerContainer: {
     position: 'relative',
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Cocogoose',
     fontWeight: 'bold',
     fontStyle: 'italic',
-    color: '#FFFFFF',
+    color: '#A855F7',
     marginBottom: 16,
   },
   statsGrid: {
@@ -306,34 +306,37 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   statCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(168, 85, 247, 0.1)',
     borderRadius: 12,
     padding: 16,
     flex: 1,
     minWidth: 100,
     maxWidth: '48%',
     borderLeftWidth: 4,
+    borderLeftColor: '#A855F7',
     shadowColor: '#522e8e',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 3,
+    borderWidth: 1,
+    borderColor: 'rgba(168, 85, 247, 0.2)',
   },
   statValue: {
     fontSize: 28,
     fontFamily: 'Cocogoose',
     fontWeight: 'bold',
     fontStyle: 'italic',
-    color: '#522e8e',
+    color: '#A855F7',
     marginBottom: 4,
   },
   statTitle: {
     fontSize: 12,
-    color: '#6B7280',
+    color: '#C084FC',
     fontWeight: '600',
   },
   adminCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(168, 85, 247, 0.1)',
     borderRadius: 16,
     padding: 20,
     marginBottom: 12,
@@ -344,6 +347,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 12,
     elevation: 5,
+    borderWidth: 1,
+    borderColor: 'rgba(168, 85, 247, 0.2)',
   },
   iconContainer: {
     width: 48,
@@ -361,11 +366,11 @@ const styles = StyleSheet.create({
     fontFamily: 'Cocogoose',
     fontWeight: 'bold',
     fontStyle: 'italic',
-    color: '#522e8e',
+    color: '#A855F7',
     marginBottom: 4,
   },
   cardDescription: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#C084FC',
   },
 });

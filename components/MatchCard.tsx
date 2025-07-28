@@ -78,7 +78,7 @@ export default function MatchCard({ match, onPress }: MatchCardProps) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(168, 85, 247, 0.1)',
     borderRadius: 16,
     marginHorizontal: 16,
     marginVertical: 8,
@@ -88,6 +88,8 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 5,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(168, 85, 247, 0.2)',
   },
   image: {
     width: '100%',
@@ -111,7 +113,7 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#6B7280',
+    color: '#C084FC',
   },
   teamsContainer: {
     flexDirection: 'row',
@@ -135,13 +137,13 @@ const styles = StyleSheet.create({
     fontFamily: 'Cocogoose',
     fontWeight: 'bold',
     fontStyle: 'italic',
-    color: '#6B46C1',
+    color: '#A855F7',
     textAlign: 'center',
   },
   vsText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#8B5CF6',
+    color: '#A855F7',
     marginHorizontal: 16,
   },
   detailsContainer: {
@@ -154,6 +156,6 @@ const styles = StyleSheet.create({
   },
   detailText: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#C084FC',
   },
 });

@@ -4,7 +4,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "EXPO_NO_TELEMETRY=1 expo start",
+    "start": "npx expo start",
+    "web": "npx expo start --web",
+    "android": "npx expo start --android",
+    "ios": "npx expo start --ios",
     "server": "node server.js",
     "server:dev": "nodemon server.js",
     "build:web": "expo export --platform web",

@@ -277,7 +277,7 @@ export default function HighlightsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#522e8e',
+    backgroundColor: '#000000',
   },
   content: {
     flex: 1,
@@ -298,48 +298,50 @@ const styles = StyleSheet.create({
   filterSection: {
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(168, 85, 247, 0.1)',
   },
   filterButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(168, 85, 247, 0.2)',
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
     alignSelf: 'flex-start',
     gap: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(168, 85, 247, 0.3)',
   },
   filterButtonText: {
-    color: '#FFFFFF',
+    color: '#A855F7',
     fontSize: 14,
     fontWeight: '600',
   },
   filterOptions: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(168, 85, 247, 0.1)',
     paddingHorizontal: 16,
     paddingBottom: 12,
   },
   sportChip: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(168, 85, 247, 0.2)',
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 16,
     marginRight: 8,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    borderColor: 'rgba(168, 85, 247, 0.3)',
   },
   sportChipActive: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#FFFFFF',
+    backgroundColor: '#A855F7',
+    borderColor: '#A855F7',
   },
   sportChipText: {
-    color: '#FFFFFF',
+    color: '#A855F7',
     fontSize: 14,
     fontWeight: '500',
   },
   sportChipTextActive: {
-    color: '#522e8e',
+    color: '#FFFFFF',
     fontWeight: '600',
   },
   section: {
@@ -358,7 +360,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Cocogoose',
     fontWeight: 'bold',
     fontStyle: 'italic',
-    color: '#FFFFFF',
+    color: '#A855F7',
   },
   featuredCard: {
     position: 'relative',

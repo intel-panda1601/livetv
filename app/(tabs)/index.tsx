@@ -366,7 +366,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#522e8e',
+    backgroundColor: '#000000',
   },
   content: {
     flex: 1,
@@ -384,23 +384,23 @@ const styles = StyleSheet.create({
   },
   connectionText: {
     fontSize: 14,
-    color: '#522e8e',
+    color: '#A855F7',
   },
   connectionError: {
-    backgroundColor: '#FEF3C7',
+    backgroundColor: 'rgba(168, 85, 247, 0.1)',
     margin: 16,
     padding: 12,
     borderRadius: 8,
     borderLeftWidth: 4,
-    borderLeftColor: '#F59E0B',
+    borderLeftColor: '#A855F7',
   },
   connectionErrorText: {
-    color: '#92400E',
+    color: '#A855F7',
     fontSize: 14,
     fontWeight: '500',
   },
   errorContainer: {
-    backgroundColor: '#FEE2E2',
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
     margin: 16,
     padding: 12,
     borderRadius: 8,
@@ -408,13 +408,13 @@ const styles = StyleSheet.create({
     borderLeftColor: '#EF4444',
   },
   errorText: {
-    color: '#DC2626',
+    color: '#EF4444',
     fontSize: 14,
     fontWeight: '500',
     marginBottom: 4,
   },
   errorHint: {
-    color: '#7F1D1D',
+    color: '#F87171',
     fontSize: 12,
     fontStyle: 'italic',
   },
@@ -434,11 +434,11 @@ const styles = StyleSheet.create({
     fontFamily: 'Cocogoose',
     fontWeight: 'bold',
     fontStyle: 'italic',
-    color: '#FFFFFF',
+    color: '#A855F7',
   },
   sectionCount: {
     fontSize: 16,
-    color: '#E0E7FF',
+    color: '#C084FC',
     fontWeight: '600',
     marginLeft: 4,
   },

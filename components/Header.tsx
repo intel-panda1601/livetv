@@ -45,11 +45,16 @@ export default function Header({ title, showBackButton = false }: HeaderProps) {
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: '#3B82F6',
+    backgroundColor: '#374151',
   },
   header: {
-    backgroundColor: '#3B82F6',
+    backgroundColor: '#374151',
     paddingBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 8,
   },
   spacer: {
     height: Platform.select({ android: 24, ios: 8 }),

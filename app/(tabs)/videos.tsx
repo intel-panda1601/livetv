@@ -225,7 +225,7 @@ export default function VideosScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#522e8e',
+    backgroundColor: '#000000',
   },
   content: {
     flex: 1,
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Cocogoose',
     fontWeight: 'bold',
     fontStyle: 'italic',
-    color: '#FFFFFF',
+    color: '#A855F7',
     paddingHorizontal: 16,
     marginBottom: 12,
   },

@@ -44,7 +44,7 @@ export default function VideoCard({ video, onPress }: VideoCardProps) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(168, 85, 247, 0.1)',
     borderRadius: 16,
     marginVertical: 4,
     shadowColor: '#522e8e',
@@ -53,6 +53,8 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 5,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(168, 85, 247, 0.2)',
   },
   thumbnailContainer: {
     position: 'relative',
@@ -71,10 +73,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   playIcon: {
-    backgroundColor: 'rgba(82, 46, 142, 0.8)',
+    backgroundColor: 'rgba(168, 85, 247, 0.9)',
     borderRadius: 20,
     padding: 8,
     transform: [{ translateX: -16 }, { translateY: -16 }],
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+    elevation: 8,
   },
   duration: {
     position: 'absolute',
@@ -98,7 +105,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Cocogoose',
     fontWeight: 'bold',
     fontStyle: 'italic',
-    color: '#522e8e',
+    color: '#A855F7',
     marginBottom: 8,
     lineHeight: 22,
   },
@@ -109,6 +116,6 @@ const styles = StyleSheet.create({
   },
   uploadDate: {
     fontSize: 12,
-    color: '#6B7280',
+    color: '#C084FC',
   },
 });
