@@ -1,9 +1,7 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Platform, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
 import { ArrowLeft } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-
-const { width } = Dimensions.get('window');
 
 interface HeaderProps {
   title: string;
@@ -13,13 +11,9 @@ interface HeaderProps {
 export default function Header({ title, showBackButton = false }: HeaderProps) {
   const router = useRouter();
 
-  // If no title is provided, default to "LIVE TV"
-  const displayTitle = title || "LIVE TV";
-  
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
-        <View style={styles.spacer} />
         <View style={styles.content}>
           {showBackButton && (
             <TouchableOpacity 
@@ -29,14 +23,7 @@ export default function Header({ title, showBackButton = false }: HeaderProps) {
               <ArrowLeft size={24} color="#FFFFFF" />
             </TouchableOpacity>
           )}
-          <Text 
-            style={styles.title}
-            numberOfLines={1}
-            adjustsFontSizeToFit
-            minimumFontScale={0.8}
-          >
-            {displayTitle}
-          </Text>
+          <Text style={styles.title}>{title}</Text>
         </View>
       </View>
     </SafeAreaView>
@@ -56,27 +43,22 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 8,
   },
-  spacer: {
-    height: Platform.select({ android: 24, ios: 8 }),
-  },
   content: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: width > 400 ? 24 : 16,
+    paddingHorizontal: 16,
     paddingTop: 12,
+    minHeight: 44,
   },
   backButton: {
     marginRight: 16,
     padding: 4,
   },
   title: {
-    fontSize: Platform.select({ android: 20, ios: 24 }),
-    fontFamily: 'Cocogoose',
+    fontSize: 24,
     fontWeight: 'bold',
-    fontStyle: 'italic',
-    color: '#FFFFFF',
+    color: '#A855F7',
     flex: 1,
-    marginRight: 48,
-    textAlign: 'center',
+    textAlign: showBackButton ? 'left' : 'center',
   },
 });

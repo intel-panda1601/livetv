@@ -1,70 +1,42 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, RefreshControl } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
-import Header from '@/components/Header';
-import VideoPlayer from '@/components/VideoPlayer';
-import LoadingSpinner from '@/components/LoadingSpinner';
 import { Calendar, Eye, Tag } from 'lucide-react-native';
-
-interface VideoDetails {
-  id: string;
-  title: string;
-  description?: string;
-  videoId: string;
-  uploadDate: string;
-  views?: number;
-  category: string;
-  duration?: string;
-  youtubeUrl?: string;
-  sport?: string;
-  featured?: boolean;
-  thumbnailUrl?: string;
-}
+import Header from '../../src/components/Header';
+import VideoPlayer from '../../src/components/VideoPlayer';
+import { mockVideos, mockHighlights } from '../../src/data/mockData';
 
 export default function VideoDetailsScreen() {
   const { id } = useLocalSearchParams();
-  const [video, setVideo] = useState<VideoDetails | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-
-  useEffect(() => {
-    fetchVideoDetails();
-  }, [id]);
-
-  const fetchVideoDetails = async () => {
-    try {
-      // Use the API client for consistent error handling
-      const response = await fetch(`/api/videos/${id}`);
-      if (response.ok) {
-        const data = await response.json();
-        setVideo(data);
-        console.log('✅ Video details loaded:', data.title);
-      } else {
-        console.error('Failed to fetch video details:', response.status);
-        // Don't set fallback data - let the user know there's an issue
-      }
-    } catch (error) {
-      console.error('Error fetching video details:', error);
-    } finally {
-      setLoading(false);
+  
+  // Check both videos and highlights
+  let video = mockVideos.find(v => v.id === id);
+  let isHighlight = false;
+  
+  if (!video) {
+    const highlight = mockHighlights.find(h => h.id === id);
+    if (highlight) {
+      video = {
+        id: highlight.id,
+        title: highlight.title,
+        thumbnailUrl: highlight.thumbnailUrl,
+        videoId: highlight.videoId,
+        duration: highlight.duration,
+        uploadDate: highlight.uploadDate,
+        views: highlight.views,
+        category: 'Sport',
+        description: highlight.description
+      };
+      isHighlight = true;
     }
-  };
+  }
 
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await fetchVideoDetails();
-    setRefreshing(false);
-  };
-
-  if (loading || !video) {
+  if (!video) {
     return (
       <View style={styles.container}>
         <Header title="Video" showBackButton />
-        <View style={styles.loadingContainer}>
-          <LoadingSpinner size={50} color="#FFFFFF" showLogo />
-          <Text style={styles.loadingText}>
-            {loading ? 'Loading video...' : 'Video not found'}
-          </Text>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>Video not found</Text>
         </View>
       </View>
     );
@@ -74,12 +46,7 @@ export default function VideoDetailsScreen() {
     <View style={styles.container}>
       <Header title="Video" showBackButton />
       
-      <ScrollView 
-        style={styles.content}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
+      <ScrollView style={styles.content}>
         {/* Video Player */}
         <View style={styles.videoPlayerContainer}>
           <VideoPlayer videoId={video.videoId} height={220} />
@@ -91,22 +58,18 @@ export default function VideoDetailsScreen() {
           
           <View style={styles.metadata}>
             <View style={styles.metadataItem}>
-              <Calendar size={16} color="#8B5CF6" />
+              <Calendar size={16} color="#A855F7" />
               <Text style={styles.metadataText}>{video.uploadDate}</Text>
             </View>
             
-            {video.views && (
-              <View style={styles.metadataItem}>
-                <Eye size={16} color="#8B5CF6" />
-                <Text style={styles.metadataText}>{video.views.toLocaleString()} views</Text>
-              </View>
-            )}
+            <View style={styles.metadataItem}>
+              <Eye size={16} color="#A855F7" />
+              <Text style={styles.metadataText}>{video.views.toLocaleString()} views</Text>
+            </View>
 
-            {video.duration && (
-              <View style={styles.metadataItem}>
-                <Text style={styles.durationText}>{video.duration}</Text>
-              </View>
-            )}
+            <View style={styles.metadataItem}>
+              <Text style={styles.durationText}>{video.duration}</Text>
+            </View>
           </View>
 
           <View style={styles.categoryContainer}>
@@ -114,14 +77,9 @@ export default function VideoDetailsScreen() {
               <Tag size={14} color="#FFFFFF" />
               <Text style={styles.categoryText}>{video.category}</Text>
             </View>
-            {video.sport && (
-              <View style={[styles.categoryBadge, styles.sportBadge]}>
-                <Text style={styles.categoryText}>{video.sport}</Text>
-              </View>
-            )}
-            {video.featured && (
-              <View style={[styles.categoryBadge, styles.featuredBadge]}>
-                <Text style={styles.categoryText}>⭐ Featured</Text>
+            {isHighlight && (
+              <View style={[styles.categoryBadge, styles.highlightBadge]}>
+                <Text style={styles.categoryText}>⭐ Highlight</Text>
               </View>
             )}
           </View>
@@ -141,44 +99,36 @@ export default function VideoDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#522e8e',
+    backgroundColor: '#000000',
   },
   content: {
     flex: 1,
   },
-  loadingContainer: {
+  errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 16,
   },
-  loadingText: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    fontFamily: 'Cocogoose',
+  errorText: {
+    fontSize: 18,
+    color: '#A855F7',
     fontWeight: 'bold',
-    fontStyle: 'italic',
   },
   videoPlayerContainer: {
     marginBottom: 16,
   },
   videoDetails: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(168, 85, 247, 0.1)',
     margin: 16,
     borderRadius: 16,
     padding: 20,
-    shadowColor: '#522e8e',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 5,
+    borderWidth: 1,
+    borderColor: 'rgba(168, 85, 247, 0.3)',
   },
   title: {
     fontSize: 20,
-    fontFamily: 'Cocogoose',
     fontWeight: 'bold',
-    fontStyle: 'italic',
-    color: '#522e8e',
+    color: '#A855F7',
     marginBottom: 16,
     lineHeight: 28,
   },
@@ -196,55 +146,49 @@ const styles = StyleSheet.create({
   },
   metadataText: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#C084FC',
   },
   durationText: {
     fontSize: 14,
-    color: '#522e8e',
+    color: '#A855F7',
     fontWeight: '600',
   },
   categoryContainer: {
+    flexDirection: 'row',
     marginBottom: 20,
+    gap: 8,
   },
   categoryBadge: {
-    backgroundColor: '#522e8e',
+    backgroundColor: '#A855F7',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    alignSelf: 'flex-start',
   },
   categoryText: {
     fontSize: 12,
     fontWeight: '600',
     color: '#FFFFFF',
   },
-  sportBadge: {
-    backgroundColor: '#10B981',
-    marginLeft: 8,
-  },
-  featuredBadge: {
+  highlightBadge: {
     backgroundColor: '#F59E0B',
-    marginLeft: 8,
   },
   descriptionContainer: {
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
+    borderTopColor: 'rgba(168, 85, 247, 0.3)',
   },
   descriptionTitle: {
     fontSize: 16,
-    fontFamily: 'Cocogoose',
     fontWeight: 'bold',
-    fontStyle: 'italic',
-    color: '#522e8e',
+    color: '#A855F7',
     marginBottom: 8,
   },
   description: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#C084FC',
     lineHeight: 20,
   },
 });

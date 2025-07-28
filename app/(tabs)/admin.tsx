@@ -1,217 +1,97 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, Platform } from 'react-native';
-import { Play, Trophy, Calendar, Video, Plus, ChartBar as BarChart3, LogOut } from 'lucide-react-native';
-import Header from '@/components/Header';
-import LoadingSpinner from '@/components/LoadingSpinner';
-import { useRouter, useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { useAutoRefresh } from '@/hooks/useRealTimeUpdates';
-import apiClient from '@/lib/api';
-
-interface DashboardStats {
-  totalMatches: number;
-  liveMatches: number;
-  upcomingMatches: number;
-  completedMatches: number;
-  totalLeagues: number;
-  totalVideos: number;
-}
+import React from 'react';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { Settings, Users, BarChart3, Shield, Database, Activity } from 'lucide-react-native';
+import Header from '../../src/components/Header';
 
 export default function AdminScreen() {
-  const router = useRouter();
-  const params = useLocalSearchParams();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  
-  // Check authentication status
-  useFocusEffect(
-    React.useCallback(() => {
-      // If coming from successful login, mark as authenticated
-      if (params.authenticated === 'true') {
-        setIsAuthenticated(true);
-      } else if (!isAuthenticated) {
-        // If not authenticated, redirect to login
-        router.replace('/admin/login');
-      }
-    }, [router, params, isAuthenticated])
-  );
-
-  const [stats, setStats] = useState<DashboardStats>({
-    totalMatches: 0,
-    liveMatches: 0,
-    upcomingMatches: 0,
-    completedMatches: 0,
-    totalLeagues: 0,
-    totalVideos: 0,
-  });
-  const [loading, setLoading] = useState(true);
-
-  const fetchStats = async () => {
-    try {
-      const response = await apiClient.getAdminStats();
-      if (response.data) {
-        setStats(response.data);
-      } else {
-        console.error('Failed to fetch stats:', response.error);
-      }
-    } catch (error) {
-      console.error('Error fetching stats:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Auto-refresh stats when changes are made
-  useAutoRefresh(fetchStats, []);
-
-  useEffect(() => {
-    fetchStats();
-  }, []);
-
-  const handleLogout = () => {
-    Alert.alert(
-      'Confirm Logout',
-      'You will be signed out of the admin panel and redirected to the login screen. Any unsaved changes will be lost.',
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-          onPress: () => console.log('Logout cancelled')
-        },
-        {
-          text: 'Sign Out',
-          style: 'destructive',
-          onPress: () => {
-            console.log('Admin logging out...');
-            setIsAuthenticated(false);
-            // Clear any cached data or state if needed
-            setStats({
-              totalMatches: 0,
-              liveMatches: 0,
-              upcomingMatches: 0,
-              completedMatches: 0,
-              totalLeagues: 0,
-              totalVideos: 0,
-            });
-            // Navigate back to login screen
-            router.replace('/admin/login');
-          }
-        }
-      ],
-      { cancelable: true }
-    );
-  };
+  const adminStats = [
+    { title: 'Total Matches', value: '156', color: '#EF4444' },
+    { title: 'Live Matches', value: '3', color: '#F59E0B' },
+    { title: 'Total Leagues', value: '8', color: '#10B981' },
+    { title: 'Total Videos', value: '45', color: '#A855F7' },
+    { title: 'Active Users', value: '1.2K', color: '#6366F1' },
+    { title: 'Highlights', value: '89', color: '#FFD700' },
+  ];
 
   const adminSections = [
     {
-      title: 'Manage Matches',
-      icon: Calendar,
+      title: 'User Management',
+      icon: Users,
       color: '#EF4444',
-      route: '/admin/matches',
-      description: 'Add, edit and manage match schedules',
+      description: 'Manage user accounts and permissions',
     },
     {
-      title: 'Manage Leagues',
-      icon: Trophy,
+      title: 'Content Management',
+      icon: Database,
       color: '#F59E0B',
-      route: '/admin/leagues',
-      description: 'Create and organize football leagues',
+      description: 'Manage matches, videos, and highlights',
     },
     {
-      title: 'Manage Videos',
-      icon: Video,
-      color: '#8B5CF6',
-      route: '/admin/videos',
-      description: 'Upload and manage video content',
-    },
-    {
-      title: 'Manage Highlights',
-      icon: Trophy,
-      color: '#FFD700',
-      route: '/admin/highlights',
-      description: 'Manage sports highlights and featured content',
-    },
-    {
-      title: 'Featured Content',
-      icon: Play,
+      title: 'Analytics',
+      icon: BarChart3,
       color: '#10B981',
-      route: '/admin/featured',
-      description: 'Set featured videos and highlights',
+      description: 'View app usage and performance metrics',
+    },
+    {
+      title: 'Security',
+      icon: Shield,
+      color: '#A855F7',
+      description: 'Security settings and access control',
+    },
+    {
+      title: 'System Status',
+      icon: Activity,
+      color: '#6366F1',
+      description: 'Monitor system health and performance',
+    },
+    {
+      title: 'Settings',
+      icon: Settings,
+      color: '#6B7280',
+      description: 'App configuration and preferences',
     },
   ];
 
-  const StatCard = ({ title, value, color }: { title: string; value: number; color: string }) => (
+  const StatCard = ({ title, value, color }) => (
     <View style={[styles.statCard, { borderLeftColor: color }]}>
-      <Text style={styles.statValue}>{value}</Text>
+      <Text style={[styles.statValue, { color }]}>{value}</Text>
       <Text style={styles.statTitle}>{title}</Text>
     </View>
   );
 
-  // Show loading while checking authentication
-  if (!isAuthenticated) {
-    return (
-      <View style={styles.container}>
-        <Header title="Admin Panel" />
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Checking authentication...</Text>
-        </View>
-      </View>
-    );
-  }
-
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <View style={styles.headerContainer}>
-          <Header title="Admin Panel" />
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <LogOut size={20} color="#FFFFFF" />
-            <Text style={styles.logoutButtonText}>Logout</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.loadingContainer}>
-          <LoadingSpinner size={50} color="#FFFFFF" showLogo />
-          <Text style={styles.loadingText}>Loading dashboard...</Text>
-        </View>
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
-      <View style={styles.headerContainer}>
-        <Header title="Admin Panel" />
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <LogOut size={20} color="#FFFFFF" />
-          <Text style={styles.logoutButtonText}>Logout</Text>
-        </TouchableOpacity>
-      </View>
+      <Header title="Admin Panel" />
       
       <ScrollView style={styles.content}>
-        {/* Dashboard Stats */}
+        {/* Welcome Section */}
+        <View style={styles.welcomeSection}>
+          <Text style={styles.welcomeTitle}>Welcome, Admin</Text>
+          <Text style={styles.welcomeSubtitle}>
+            Manage your Live TV app from this dashboard
+          </Text>
+        </View>
+
+        {/* Stats Grid */}
         <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <BarChart3 size={24} color="#FFFFFF" />
-            <Text style={styles.sectionTitle}>Dashboard Overview</Text>
-          </View>
-          
+          <Text style={styles.sectionTitle}>Dashboard Overview</Text>
           <View style={styles.statsGrid}>
-            <StatCard title="Live Matches" value={stats.liveMatches} color="#EF4444" />
-            <StatCard title="Upcoming" value={stats.upcomingMatches} color="#F59E0B" />
-            <StatCard title="Completed" value={stats.completedMatches} color="#10B981" />
-            <StatCard title="Total Leagues" value={stats.totalLeagues} color="#8B5CF6" />
-            <StatCard title="Total Videos" value={stats.totalVideos} color="#6366F1" />
-            <StatCard title="Total Matches" value={stats.totalMatches} color="#6B46C1" />
+            {adminStats.map((stat, index) => (
+              <StatCard
+                key={index}
+                title={stat.title}
+                value={stat.value}
+                color={stat.color}
+              />
+            ))}
           </View>
         </View>
 
-        {/* Management Sections */}
+        {/* Admin Sections */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Management</Text>
           {adminSections.map((section, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.adminCard}
-              onPress={() => router.push(section.route as any)}
-            >
+            <TouchableOpacity key={index} style={styles.adminCard}>
               <View style={[styles.iconContainer, { backgroundColor: `${section.color}20` }]}>
                 <section.icon size={24} color={section.color} />
               </View>
@@ -219,7 +99,7 @@ export default function AdminScreen() {
                 <Text style={styles.cardTitle}>{section.title}</Text>
                 <Text style={styles.cardDescription}>{section.description}</Text>
               </View>
-              <Plus size={20} color="#6B7280" />
+              <Settings size={20} color="#6B7280" />
             </TouchableOpacity>
           ))}
         </View>
@@ -233,70 +113,31 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#000000',
   },
-  headerContainer: {
-    position: 'relative',
-  },
-  logoutButton: {
-    position: 'absolute',
-    top: Platform.select({ 
-      android: 55,
-      ios: 65,
-      default: 60
-    }),
-    right: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#EF4444',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 24,
-    gap: 6,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 8,
-    zIndex: 1000,
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  logoutButtonText: {
-    color: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-  },
   content: {
     flex: 1,
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 16,
+  welcomeSection: {
+    padding: 16,
+    marginTop: 16,
   },
-  loadingText: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    fontFamily: 'Cocogoose',
+  welcomeTitle: {
+    fontSize: 28,
     fontWeight: 'bold',
-    fontStyle: 'italic',
+    color: '#A855F7',
+    marginBottom: 8,
+  },
+  welcomeSubtitle: {
+    fontSize: 16,
+    color: '#C084FC',
+    lineHeight: 22,
   },
   section: {
     marginTop: 24,
     marginHorizontal: 16,
   },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-    gap: 8,
-  },
   sectionTitle: {
     fontSize: 20,
-    fontFamily: 'Cocogoose',
     fontWeight: 'bold',
-    fontStyle: 'italic',
     color: '#A855F7',
     marginBottom: 16,
   },
@@ -313,21 +154,12 @@ const styles = StyleSheet.create({
     minWidth: 100,
     maxWidth: '48%',
     borderLeftWidth: 4,
-    borderLeftColor: '#A855F7',
-    shadowColor: '#522e8e',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
     borderWidth: 1,
-    borderColor: 'rgba(168, 85, 247, 0.2)',
+    borderColor: 'rgba(168, 85, 247, 0.3)',
   },
   statValue: {
     fontSize: 28,
-    fontFamily: 'Cocogoose',
     fontWeight: 'bold',
-    fontStyle: 'italic',
-    color: '#A855F7',
     marginBottom: 4,
   },
   statTitle: {
@@ -342,13 +174,13 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#522e8e',
+    shadowColor: '#A855F7',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.3,
     shadowRadius: 12,
-    elevation: 5,
+    elevation: 8,
     borderWidth: 1,
-    borderColor: 'rgba(168, 85, 247, 0.2)',
+    borderColor: 'rgba(168, 85, 247, 0.3)',
   },
   iconContainer: {
     width: 48,
@@ -363,9 +195,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 16,
-    fontFamily: 'Cocogoose',
     fontWeight: 'bold',
-    fontStyle: 'italic',
     color: '#A855F7',
     marginBottom: 4,
   },

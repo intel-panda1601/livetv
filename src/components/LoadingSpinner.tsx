@@ -1,17 +1,12 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Animated, Easing, StyleSheet, Image } from 'react-native';
+import { View, Animated, Easing, StyleSheet } from 'react-native';
 
 interface LoadingSpinnerProps {
   size?: number;
   color?: string;
-  showLogo?: boolean;
 }
 
-export default function LoadingSpinner({ 
-  size = 40, 
-  color = '#522e8e', 
-  showLogo = false 
-}: LoadingSpinnerProps) {
+export default function LoadingSpinner({ size = 40, color = '#A855F7' }: LoadingSpinnerProps) {
   const spinValue = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -34,13 +29,6 @@ export default function LoadingSpinner({
 
   return (
     <View style={styles.container}>
-      {showLogo && (
-        <Image 
-          source={require('../assets/images/icono.jpg')} 
-          style={styles.logo}
-          resizeMode="contain"
-        />
-      )}
       <Animated.View
         style={[
           styles.spinner,
@@ -62,19 +50,8 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 16,
-  },
-  logo: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
   },
   spinner: {
     borderRadius: 50,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
   },
 });

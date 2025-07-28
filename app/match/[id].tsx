@@ -1,128 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, Image, RefreshControl } from 'react-native';
+import React from 'react';
+import { View, Text, ScrollView, StyleSheet, Image } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
-import Header from '@/components/Header';
-import LoadingSpinner from '@/components/LoadingSpinner';
-import { Users, MapPin, Calendar, Trophy } from 'lucide-react-native';
-
-interface MatchDetails {
-  id: string;
-  team1: string;
-  team2: string;
-  date: string;
-  time: string;
-  status: 'live' | 'upcoming' | 'completed';
-  venue?: string;
-  imageUrl?: string;
-  league: string;
-  players: {
-    team1: string[];
-    team2: string[];
-  };
-  teamStats: {
-    team1: { wins: number; losses: number; draws: number; };
-    team2: { wins: number; losses: number; draws: number; };
-  };
-}
+import { Calendar, MapPin, Trophy, Users } from 'lucide-react-native';
+import Header from '../../src/components/Header';
+import { mockMatches } from '../../src/data/mockData';
 
 export default function MatchDetailsScreen() {
   const { id } = useLocalSearchParams();
-  const [match, setMatch] = useState<MatchDetails | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const match = mockMatches.find(m => m.id === id);
 
-  useEffect(() => {
-    fetchMatchDetails();
-  }, [id]);
-
-  const fetchMatchDetails = async () => {
-    try {
-      const response = await fetch(`/api/matches/${id}`);
-      if (response.ok) {
-        const data = await response.json();
-        setMatch(data);
-      } else {
-        // Fallback sample data
-        const matchDetails: MatchDetails = {
-          id: id as string,
-          team1: 'Manchester United',
-          team2: 'Liverpool',
-          date: '2025-01-15',
-          time: '15:00',
-          status: 'live',
-          venue: 'Old Trafford',
-          imageUrl: 'https://images.pexels.com/photos/274506/pexels-photo-274506.jpeg?auto=compress&cs=tinysrgb&w=800',
-          league: 'Premier League',
-          players: {
-            team1: ['Marcus Rashford', 'Bruno Fernandes', 'Casemiro', 'Harry Maguire', 'Luke Shaw'],
-            team2: ['Mohamed Salah', 'Sadio Mane', 'Virgil van Dijk', 'Jordan Henderson', 'Andrew Robertson']
-          },
-          teamStats: {
-            team1: { wins: 15, losses: 3, draws: 6 },
-            team2: { wins: 18, losses: 2, draws: 4 }
-          }
-        };
-        
-        setMatch(matchDetails);
-      }
-    } catch (error) {
-      console.error('Error fetching match details:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await fetchMatchDetails();
-    setRefreshing(false);
-  };
-
-  if (loading || !match) {
+  if (!match) {
     return (
       <View style={styles.container}>
         <Header title="Match Details" showBackButton />
-        <View style={styles.loadingContainer}>
-          <LoadingSpinner size={50} color="#FFFFFF" showLogo />
-          <Text style={styles.loadingText}>
-            {loading ? 'Loading match details...' : 'Match not found'}
-          </Text>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>Match not found</Text>
         </View>
       </View>
     );
   }
 
-  const TeamStats = ({ team, stats }: { team: string; stats: { wins: number; losses: number; draws: number; } }) => (
-    <View style={styles.teamStatsCard}>
-      <Text style={styles.teamName}>{team}</Text>
-      <View style={styles.statsRow}>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{stats.wins}</Text>
-          <Text style={styles.statLabel}>Wins</Text>
-        </View>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{stats.draws}</Text>
-          <Text style={styles.statLabel}>Draws</Text>
-        </View>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>{stats.losses}</Text>
-          <Text style={styles.statLabel}>Losses</Text>
-        </View>
-      </View>
-    </View>
-  );
-
   return (
     <View style={styles.container}>
       <Header title="Match Details" showBackButton />
       
-      <ScrollView 
-        style={styles.content}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
-        {/* Match Header */}
+      <ScrollView style={styles.content}>
         {match.imageUrl && (
           <Image source={{ uri: match.imageUrl }} style={styles.matchImage} />
         )}
@@ -137,60 +39,61 @@ export default function MatchDetailsScreen() {
           </View>
           
           <View style={styles.teamsContainer}>
-            <Text style={styles.teamText}>{match.team1}</Text>
+            <View style={styles.teamSection}>
+              {match.team1Logo && (
+                <Image source={{ uri: match.team1Logo }} style={styles.teamLogo} />
+              )}
+              <Text style={styles.teamName}>{match.team1}</Text>
+              {match.score && (
+                <Text style={styles.score}>{match.score.team1}</Text>
+              )}
+            </View>
+            
             <Text style={styles.vsText}>VS</Text>
-            <Text style={styles.teamText}>{match.team2}</Text>
+            
+            <View style={styles.teamSection}>
+              {match.team2Logo && (
+                <Image source={{ uri: match.team2Logo }} style={styles.teamLogo} />
+              )}
+              <Text style={styles.teamName}>{match.team2}</Text>
+              {match.score && (
+                <Text style={styles.score}>{match.score.team2}</Text>
+              )}
+            </View>
           </View>
           
           <View style={styles.matchInfo}>
             <View style={styles.infoItem}>
-              <Calendar size={20} color="#522e8e" />
+              <Calendar size={20} color="#A855F7" />
               <Text style={styles.infoText}>{match.date} • {match.time}</Text>
             </View>
+            {match.venue && (
+              <View style={styles.infoItem}>
+                <MapPin size={20} color="#A855F7" />
+                <Text style={styles.infoText}>{match.venue}</Text>
+              </View>
+            )}
             <View style={styles.infoItem}>
-              <MapPin size={20} color="#522e8e" />
-              <Text style={styles.infoText}>{match.venue}</Text>
-            </View>
-            <View style={styles.infoItem}>
-              <Trophy size={20} color="#522e8e" />
+              <Trophy size={20} color="#A855F7" />
               <Text style={styles.infoText}>{match.league}</Text>
             </View>
           </View>
         </View>
 
-        {/* Team Statistics */}
+        {/* Match Statistics */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Team Statistics</Text>
-          <View style={styles.statsContainer}>
-            <TeamStats team={match.team1} stats={match.teamStats.team1} />
-            <TeamStats team={match.team2} stats={match.teamStats.team2} />
-          </View>
-        </View>
-
-        {/* Players */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Players</Text>
-          
-          <View style={styles.playersContainer}>
-            <View style={styles.teamPlayers}>
-              <Text style={styles.teamPlayersTitle}>{match.team1}</Text>
-              {match.players.team1.map((player, index) => (
-                <View key={index} style={styles.playerItem}>
-                  <Users size={16} color="#522e8e" />
-                  <Text style={styles.playerName}>{player}</Text>
-                </View>
-              ))}
-            </View>
-            
-            <View style={styles.teamPlayers}>
-              <Text style={styles.teamPlayersTitle}>{match.team2}</Text>
-              {match.players.team2.map((player, index) => (
-                <View key={index} style={styles.playerItem}>
-                  <Users size={16} color="#522e8e" />
-                  <Text style={styles.playerName}>{player}</Text>
-                </View>
-              ))}
-            </View>
+          <Text style={styles.sectionTitle}>Match Information</Text>
+          <View style={styles.infoCard}>
+            <Text style={styles.infoCardText}>
+              {match.status === 'live' && 'This match is currently being played live.'}
+              {match.status === 'upcoming' && 'This match is scheduled to be played soon.'}
+              {match.status === 'completed' && 'This match has been completed.'}
+            </Text>
+            {match.score && (
+              <Text style={styles.finalScore}>
+                Final Score: {match.team1} {match.score.team1} - {match.score.team2} {match.team2}
+              </Text>
+            )}
           </View>
         </View>
       </ScrollView>
@@ -201,23 +104,20 @@ export default function MatchDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#522e8e',
+    backgroundColor: '#000000',
   },
   content: {
     flex: 1,
   },
-  loadingContainer: {
+  errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 16,
   },
-  loadingText: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    fontFamily: 'Cocogoose',
+  errorText: {
+    fontSize: 18,
+    color: '#A855F7',
     fontWeight: 'bold',
-    fontStyle: 'italic',
   },
   matchImage: {
     width: '100%',
@@ -225,14 +125,11 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   matchHeader: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(168, 85, 247, 0.1)',
     padding: 20,
     marginBottom: 16,
-    shadowColor: '#522e8e',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 5,
+    borderWidth: 1,
+    borderColor: 'rgba(168, 85, 247, 0.3)',
   },
   statusContainer: {
     flexDirection: 'row',
@@ -248,27 +145,40 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#6B7280',
+    color: '#C084FC',
   },
   teamsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     marginBottom: 20,
   },
-  teamText: {
-    fontSize: 20,
-    fontFamily: 'Cocogoose',
-    fontWeight: 'bold',
-    fontStyle: 'italic',
-    color: '#522e8e',
+  teamSection: {
     flex: 1,
+    alignItems: 'center',
+    gap: 8,
+  },
+  teamLogo: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    resizeMode: 'cover',
+  },
+  teamName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#A855F7',
     textAlign: 'center',
+  },
+  score: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
   },
   vsText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#522e8e',
+    color: '#A855F7',
     marginHorizontal: 16,
   },
   matchInfo: {
@@ -281,91 +191,38 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 16,
-    color: '#6B7280',
+    color: '#C084FC',
   },
   section: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(168, 85, 247, 0.1)',
     marginBottom: 16,
     marginHorizontal: 16,
     borderRadius: 16,
     padding: 20,
-    shadowColor: '#522e8e',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 5,
+    borderWidth: 1,
+    borderColor: 'rgba(168, 85, 247, 0.3)',
   },
   sectionTitle: {
     fontSize: 20,
-    fontFamily: 'Cocogoose',
     fontWeight: 'bold',
-    fontStyle: 'italic',
-    color: '#522e8e',
+    color: '#A855F7',
     marginBottom: 16,
   },
-  statsContainer: {
-    flexDirection: 'row',
-    gap: 16,
-  },
-  teamStatsCard: {
-    flex: 1,
-    backgroundColor: '#F9FAFB',
-    borderRadius: 12,
+  infoCard: {
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
     padding: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: '#522e8e',
+    borderRadius: 12,
   },
-  teamName: {
+  infoCardText: {
     fontSize: 16,
-    fontFamily: 'Cocogoose',
+    color: '#C084FC',
+    lineHeight: 22,
+    marginBottom: 8,
+  },
+  finalScore: {
+    fontSize: 18,
     fontWeight: 'bold',
-    fontStyle: 'italic',
-    color: '#522e8e',
-    marginBottom: 12,
+    color: '#A855F7',
     textAlign: 'center',
-  },
-  statsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  statItem: {
-    alignItems: 'center',
-  },
-  statNumber: {
-    fontSize: 24,
-    fontFamily: 'Cocogoose',
-    fontWeight: 'bold',
-    fontStyle: 'italic',
-    color: '#522e8e',
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#6B7280',
-    marginTop: 4,
-  },
-  playersContainer: {
-    flexDirection: 'row',
-    gap: 20,
-  },
-  teamPlayers: {
-    flex: 1,
-  },
-  teamPlayersTitle: {
-    fontSize: 16,
-    fontFamily: 'Cocogoose',
-    fontWeight: 'bold',
-    fontStyle: 'italic',
-    color: '#522e8e',
-    marginBottom: 12,
-  },
-  playerItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-    gap: 8,
-  },
-  playerName: {
-    fontSize: 14,
-    color: '#6B7280',
   },
 });

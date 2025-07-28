@@ -1,88 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { View, ScrollView, StyleSheet, RefreshControl } from 'react-native';
+import React from 'react';
+import { View, Text, ScrollView, StyleSheet, Image } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
-import Header from '@/components/Header';
-import MatchCard from '@/components/MatchCard';
-import LoadingSpinner from '@/components/LoadingSpinner';
+import { Trophy, Calendar, Users } from 'lucide-react-native';
+import Header from '../../src/components/Header';
+import MatchCard from '../../src/components/MatchCard';
+import { mockLeagues, mockMatches } from '../../src/data/mockData';
 import { useRouter } from 'expo-router';
-
-interface Match {
-  id: string;
-  team1: string;
-  team2: string;
-  date: string;
-  time: string;
-  status: 'live' | 'upcoming' | 'completed';
-  venue?: string;
-  imageUrl?: string;
-}
 
 export default function LeagueDetailsScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
-  const [matches, setMatches] = useState<Match[]>([]);
-  const [leagueName, setLeagueName] = useState('League');
-  const [refreshing, setRefreshing] = useState(false);
+  
+  const league = mockLeagues.find(l => l.id === id);
+  const leagueMatches = mockMatches.filter(m => m.league === league?.name);
 
-  useEffect(() => {
-    fetchLeagueMatches();
-  }, [id]);
-
-  const fetchLeagueMatches = async () => {
-    try {
-      const response = await fetch(`/api/leagues/${id}/matches`);
-      if (response.ok) {
-        const data = await response.json();
-        setMatches(data.matches);
-        setLeagueName(data.leagueName);
-      } else {
-        // Fallback sample data
-        const leagueMatches: Match[] = [
-          {
-            id: '1',
-            team1: 'Manchester United',
-            team2: 'Liverpool',
-            date: '2025-01-15',
-            time: '15:00',
-            status: 'live',
-            venue: 'Old Trafford',
-            imageUrl: 'https://images.pexels.com/photos/274506/pexels-photo-274506.jpeg?auto=compress&cs=tinysrgb&w=800',
-          },
-          {
-            id: '2',
-            team1: 'Chelsea',
-            team2: 'Arsenal',
-            date: '2025-01-16',
-            time: '18:30',
-            status: 'upcoming',
-            venue: 'Stamford Bridge',
-            imageUrl: 'https://images.pexels.com/photos/186077/pexels-photo-186077.jpeg?auto=compress&cs=tinysrgb&w=800',
-          },
-          {
-            id: '3',
-            team1: 'Manchester City',
-            team2: 'Tottenham',
-            date: '2025-01-12',
-            time: '16:00',
-            status: 'completed',
-            venue: 'Etihad Stadium',
-            imageUrl: 'https://images.pexels.com/photos/1884574/pexels-photo-1884574.jpeg?auto=compress&cs=tinysrgb&w=800',
-          },
-        ];
-        
-        setMatches(leagueMatches);
-        setLeagueName('Premier League');
-      }
-    } catch (error) {
-      console.error('Error fetching league matches:', error);
-    }
-  };
-
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await fetchLeagueMatches();
-    setRefreshing(false);
-  };
+  if (!league) {
+    return (
+      <View style={styles.container}>
+        <Header title="League Details" showBackButton />
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>League not found</Text>
+        </View>
+      </View>
+    );
+  }
 
   const handleMatchPress = (matchId: string) => {
     router.push(`/match/${matchId}`);
@@ -90,22 +31,58 @@ export default function LeagueDetailsScreen() {
 
   return (
     <View style={styles.container}>
-      <Header title={leagueName} showBackButton />
+      <Header title={league.name} showBackButton />
       
-      <ScrollView 
-        style={styles.content}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
-        <View style={styles.matchesList}>
-          {matches.map((match) => (
-            <MatchCard
-              key={match.id}
-              match={match}
-              onPress={() => handleMatchPress(match.id)}
-            />
-          ))}
+      <ScrollView style={styles.content}>
+        {/* League Header */}
+        <View style={styles.leagueHeader}>
+          {league.logoUrl && (
+            <Image source={{ uri: league.logoUrl }} style={styles.leagueLogo} />
+          )}
+          <View style={styles.leagueInfo}>
+            <Text style={styles.leagueName}>{league.name}</Text>
+            <Text style={styles.leagueSeason}>{league.season}</Text>
+            {league.description && (
+              <Text style={styles.leagueDescription}>{league.description}</Text>
+            )}
+          </View>
+        </View>
+
+        {/* League Stats */}
+        <View style={styles.statsContainer}>
+          <View style={styles.statCard}>
+            <Calendar size={24} color="#A855F7" />
+            <Text style={styles.statNumber}>{league.matchCount}</Text>
+            <Text style={styles.statLabel}>Total Matches</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Trophy size={24} color="#F59E0B" />
+            <Text style={styles.statNumber}>{leagueMatches.length}</Text>
+            <Text style={styles.statLabel}>Available</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Users size={24} color="#10B981" />
+            <Text style={styles.statNumber}>20</Text>
+            <Text style={styles.statLabel}>Teams</Text>
+          </View>
+        </View>
+
+        {/* Matches Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Matches</Text>
+          {leagueMatches.length > 0 ? (
+            leagueMatches.map((match) => (
+              <MatchCard
+                key={match.id}
+                match={match}
+                onPress={() => handleMatchPress(match.id)}
+              />
+            ))
+          ) : (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyText}>No matches available for this league</Text>
+            </View>
+          )}
         </View>
       </ScrollView>
     </View>
@@ -115,13 +92,99 @@ export default function LeagueDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#522e8e',
+    backgroundColor: '#000000',
   },
   content: {
     flex: 1,
   },
-  matchesList: {
-    paddingTop: 16,
-    paddingBottom: 32,
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    fontSize: 18,
+    color: '#A855F7',
+    fontWeight: 'bold',
+  },
+  leagueHeader: {
+    backgroundColor: 'rgba(168, 85, 247, 0.1)',
+    padding: 20,
+    marginBottom: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(168, 85, 247, 0.3)',
+  },
+  leagueLogo: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    marginRight: 16,
+  },
+  leagueInfo: {
+    flex: 1,
+  },
+  leagueName: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#A855F7',
+    marginBottom: 4,
+  },
+  leagueSeason: {
+    fontSize: 16,
+    color: '#C084FC',
+    marginBottom: 8,
+  },
+  leagueDescription: {
+    fontSize: 14,
+    color: '#9CA3AF',
+    lineHeight: 20,
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    marginBottom: 24,
+    gap: 12,
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: 'rgba(168, 85, 247, 0.1)',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(168, 85, 247, 0.3)',
+  },
+  statNumber: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#A855F7',
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  statLabel: {
+    fontSize: 12,
+    color: '#C084FC',
+    textAlign: 'center',
+  },
+  section: {
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#A855F7',
+    paddingHorizontal: 16,
+    marginBottom: 16,
+  },
+  emptyState: {
+    padding: 32,
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#C084FC',
+    textAlign: 'center',
   },
 });

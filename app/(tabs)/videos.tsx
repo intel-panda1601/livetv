@@ -1,134 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, RefreshControl, TouchableOpacity, FlatList } from 'react-native';
-import { Play, Filter, Video as VideoIcon } from 'lucide-react-native';
-import Header from '@/components/Header';
-import VideoCard from '@/components/VideoCard';
-import LoadingSpinner from '@/components/LoadingSpinner';
+import { Play, Filter } from 'lucide-react-native';
+import Header from '../../src/components/Header';
+import VideoCard from '../../src/components/VideoCard';
+import { mockVideos } from '../../src/data/mockData';
 import { useRouter } from 'expo-router';
-import { useAutoRefresh } from '@/hooks/useRealTimeUpdates';
-import apiClient from '@/lib/api';
-
-interface Video {
-  _id: string;
-  id: string;
-  title: string;
-  thumbnailUrl: string;
-  duration?: string;
-  uploadDate: string;
-  videoId: string;
-  category: 'Sport' | 'Podcast' | 'TV Show' | 'Other';
-  views: number;
-}
 
 export default function VideosScreen() {
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
-  const [videos, setVideos] = useState<Video[]>([]);
-  const [filteredVideos, setFilteredVideos] = useState<Video[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [showFilters, setShowFilters] = useState(false);
 
   const categories = ['All', 'Sport', 'Podcast', 'TV Show', 'Other'];
 
-  const fetchVideos = async () => {
-    try {
-      const response = await apiClient.getVideos();
-      if (response.data) {
-        const formattedVideos = response.data.map(video => ({
-          ...video,
-          id: video._id || video.id,
-          _id: video._id || video.id
-        }));
-        setVideos(formattedVideos);
-        setFilteredVideos(formattedVideos);
-      } else {
-        console.error('Failed to fetch videos:', response.error);
-        // Fallback sample data
-        const sampleVideos: Video[] = [
-          {
-            _id: '1',
-            id: '1',
-            title: 'Football Match Highlights - Premier League',
-            thumbnailUrl: 'https://images.pexels.com/photos/274506/pexels-photo-274506.jpeg?auto=compress&cs=tinysrgb&w=800',
-            duration: '12:45',
-            uploadDate: '2 days ago',
-            videoId: 'dQw4w9WgXcQ',
-            category: 'Sport',
-            views: 45000
-          },
-          {
-            _id: '2',
-            id: '2',
-            title: 'Sports Talk Podcast - Weekly Roundup',
-            thumbnailUrl: 'https://images.pexels.com/photos/7130560/pexels-photo-7130560.jpeg?auto=compress&cs=tinysrgb&w=800',
-            duration: '45:30',
-            uploadDate: '1 day ago',
-            videoId: 'dQw4w9WgXcQ',
-            category: 'Podcast',
-            views: 12000
-          },
-          {
-            _id: '3',
-            id: '3',
-            title: 'Basketball Championship Finals',
-            thumbnailUrl: 'https://images.pexels.com/photos/1752757/pexels-photo-1752757.jpeg?auto=compress&cs=tinysrgb&w=800',
-            duration: '8:20',
-            uploadDate: '3 days ago',
-            videoId: 'dQw4w9WgXcQ',
-            category: 'Sport',
-            views: 78000
-          },
-          {
-            _id: '4',
-            id: '4',
-            title: 'Sports Documentary - Behind the Scenes',
-            thumbnailUrl: 'https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=800',
-            duration: '25:15',
-            uploadDate: '1 week ago',
-            videoId: 'dQw4w9WgXcQ',
-            category: 'TV Show',
-            views: 32000
-          }
-        ];
-        setVideos(sampleVideos);
-        setFilteredVideos(sampleVideos);
-      }
-    } catch (error) {
-      console.error('Error fetching videos:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const filteredVideos = selectedCategory === 'All' 
+    ? mockVideos 
+    : mockVideos.filter(video => video.category === selectedCategory);
 
-  // Auto-refresh when admin makes changes
-  useAutoRefresh(fetchVideos, []);
-
-  const onRefresh = async () => {
+  const onRefresh = () => {
     setRefreshing(true);
-    await fetchVideos();
-    setRefreshing(false);
+    setTimeout(() => setRefreshing(false), 1000);
   };
-
-  useEffect(() => {
-    fetchVideos();
-  }, []);
-
-  useEffect(() => {
-    if (selectedCategory === 'All') {
-      setFilteredVideos(videos);
-    } else {
-      setFilteredVideos(videos.filter(video => video.category === selectedCategory));
-    }
-  }, [selectedCategory, videos]);
 
   const handleVideoPress = (videoId: string) => {
     router.push(`/video/${videoId}`);
-  };
-
-  const handleCategoryFilter = (category: string) => {
-    setSelectedCategory(category);
-    setShowFilters(false);
   };
 
   const getCategoryIcon = (category: string) => {
@@ -146,20 +42,81 @@ export default function VideosScreen() {
     }
   };
 
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <Header title="LIVE TV" />
-        <View style={styles.loadingContainer}>
-          <LoadingSpinner size={50} color="#FFFFFF" showLogo />
+  const renderVideosByCategory = () => {
+    return categories.slice(1).map((category) => {
+      const categoryVideos = mockVideos.filter(video => video.category === category);
+      if (categoryVideos.length === 0) return null;
+      
+      return (
+        <View key={category} style={styles.categorySection}>
+          <Text style={styles.categoryTitle}>
+            {getCategoryIcon(category)} {category}
+          </Text>
+          
+          <FlatList
+            horizontal
+            data={categoryVideos}
+            keyExtractor={(item) => item.id}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.horizontalList}
+            renderItem={({ item }) => (
+              <View style={styles.horizontalVideoItem}>
+                <VideoCard
+                  video={item}
+                  onPress={() => handleVideoPress(item.id)}
+                />
+              </View>
+            )}
+          />
         </View>
-      </View>
-    );
-  }
+      );
+    });
+  };
 
   return (
     <View style={styles.container}>
-      <Header title="LIVE TV" />
+      <Header title="Videos" />
+      
+      {/* Filter Section */}
+      <View style={styles.filterSection}>
+        <TouchableOpacity 
+          style={styles.filterButton}
+          onPress={() => setShowFilters(!showFilters)}
+        >
+          <Filter size={20} color="#A855F7" />
+          <Text style={styles.filterButtonText}>
+            {selectedCategory === 'All' ? 'All Categories' : selectedCategory}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Filter Options */}
+      {showFilters && (
+        <View style={styles.filterOptions}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {categories.map((category) => (
+              <TouchableOpacity
+                key={category}
+                style={[
+                  styles.categoryChip,
+                  selectedCategory === category && styles.categoryChipActive
+                ]}
+                onPress={() => {
+                  setSelectedCategory(category);
+                  setShowFilters(false);
+                }}
+              >
+                <Text style={[
+                  styles.categoryChipText,
+                  selectedCategory === category && styles.categoryChipTextActive
+                ]}>
+                  {category}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+      )}
       
       <ScrollView
         style={styles.content}
@@ -167,54 +124,23 @@ export default function VideosScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        {/* Show all categories with horizontal lists */}
-        {categories.slice(1).map((category) => {
-          const categoryVideos = videos.filter(video => video.category === category);
-          if (categoryVideos.length === 0) return null;
-          
-          return (
-            <View key={category} style={styles.categorySection}>
-              <Text style={styles.categoryTitle}>
-                {getCategoryIcon(category)} {category}
-              </Text>
-              
-              <FlatList
-                horizontal
-                data={categoryVideos}
-                keyExtractor={(item) => item.id}
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.horizontalList}
-                renderItem={({item}) => (
-                  <View style={styles.horizontalVideoItem}>
-                    <VideoCard
-                      video={{
-                        id: item.id,
-                        title: item.title,
-                        thumbnailUrl: item.thumbnailUrl,
-                        duration: item.duration,
-                        uploadDate: item.uploadDate,
-                        videoId: item.videoId
-                      }}
-                      onPress={() => handleVideoPress(item.id)}
-                    />
-                    <Text style={styles.viewCount}>
-                      {item.views.toLocaleString()} views
-                    </Text>
-                  </View>
-                )}
-              />
-            </View>
-          );
-        })}
-        
-        {/* Show empty state if no videos */}
-        {videos.length === 0 && (
-          <View style={styles.emptyState}>
-            <VideoIcon size={64} color="#D1D5DB" />
-            <Text style={styles.emptyText}>No videos available</Text>
-            <Text style={styles.emptySubtext}>
-              Check back later for new content!
+        {selectedCategory === 'All' ? (
+          renderVideosByCategory()
+        ) : (
+          <View style={styles.categorySection}>
+            <Text style={styles.categoryTitle}>
+              {getCategoryIcon(selectedCategory)} {selectedCategory}
             </Text>
+            <View style={styles.videoGrid}>
+              {filteredVideos.map((video) => (
+                <View key={video.id} style={styles.videoItem}>
+                  <VideoCard
+                    video={video}
+                    onPress={() => handleVideoPress(video.id)}
+                  />
+                </View>
+              ))}
+            </View>
           </View>
         )}
       </ScrollView>
@@ -230,14 +156,54 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 16,
+  filterSection: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: 'rgba(168, 85, 247, 0.1)',
   },
-  categoryIcon: {
-    fontSize: 16,
+  filterButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(168, 85, 247, 0.2)',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    alignSelf: 'flex-start',
+    gap: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(168, 85, 247, 0.3)',
+  },
+  filterButtonText: {
+    color: '#A855F7',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  filterOptions: {
+    backgroundColor: 'rgba(168, 85, 247, 0.1)',
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+  },
+  categoryChip: {
+    backgroundColor: 'rgba(168, 85, 247, 0.2)',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 16,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(168, 85, 247, 0.3)',
+  },
+  categoryChipActive: {
+    backgroundColor: '#A855F7',
+    borderColor: '#A855F7',
+  },
+  categoryChipText: {
+    color: '#A855F7',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  categoryChipTextActive: {
+    color: '#FFFFFF',
+    fontWeight: '600',
   },
   categorySection: {
     marginTop: 24,
@@ -245,9 +211,7 @@ const styles = StyleSheet.create({
   },
   categoryTitle: {
     fontSize: 24,
-    fontFamily: 'Cocogoose',
     fontWeight: 'bold',
-    fontStyle: 'italic',
     color: '#A855F7',
     paddingHorizontal: 16,
     marginBottom: 12,
@@ -259,32 +223,10 @@ const styles = StyleSheet.create({
     width: 280,
     marginRight: 16,
   },
-  viewCount: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    opacity: 0.8,
-    textAlign: 'center',
-    marginTop: 8,
+  videoGrid: {
+    paddingHorizontal: 16,
   },
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: 60,
-    paddingHorizontal: 32,
-  },
-  emptyText: {
-    fontSize: 18,
-    fontFamily: 'Cocogoose',
-    fontWeight: 'bold',
-    fontStyle: 'italic',
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  emptySubtext: {
-    fontSize: 14,
-    color: '#E0E7FF',
-    textAlign: 'center',
-    opacity: 0.8,
+  videoItem: {
+    marginBottom: 16,
   },
 });

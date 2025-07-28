@@ -1,148 +1,34 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, RefreshControl, TouchableOpacity } from 'react-native';
-import { Trophy, Filter, Star, Play } from 'lucide-react-native';
-import Header from '@/components/Header';
-import VideoCard from '@/components/VideoCard';
-import LoadingSpinner from '@/components/LoadingSpinner';
+import { Star, Filter, Play } from 'lucide-react-native';
+import Header from '../../src/components/Header';
+import VideoCard from '../../src/components/VideoCard';
+import { mockHighlights } from '../../src/data/mockData';
 import { useRouter } from 'expo-router';
-import { useAutoRefresh } from '@/hooks/useRealTimeUpdates';
-import apiClient from '@/lib/api';
-
-interface Highlight {
-  _id: string;
-  id: string;
-  title: string;
-  thumbnailUrl: string;
-  duration?: string;
-  uploadDate: string;
-  videoId: string;
-  category: string;
-  sport: string;
-  featured: boolean;
-  views: number;
-}
 
 export default function HighlightsScreen() {
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
-  const [highlights, setHighlights] = useState<Highlight[]>([]);
-  const [filteredHighlights, setFilteredHighlights] = useState<Highlight[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedSport, setSelectedSport] = useState('All');
   const [showFilters, setShowFilters] = useState(false);
 
-  const sportCategories = ['All', 'Football', 'Basketball', 'Soccer', 'Tennis', 'Baseball', 'Hockey'];
+  const sportCategories = ['All', 'Football', 'Basketball', 'Tennis', 'Baseball', 'Hockey'];
 
-  const fetchHighlights = async () => {
-    try {
-      const response = await apiClient.getHighlights();
-      if (response.data) {
-        const formattedHighlights = response.data.map(highlight => ({
-          ...highlight,
-          id: highlight._id || highlight.id,
-          _id: highlight._id || highlight.id
-        }));
-        setHighlights(formattedHighlights);
-        setFilteredHighlights(formattedHighlights);
-      } else {
-        console.error('Failed to fetch highlights:', response.error);
-        // Fallback sample data
-        const sampleHighlights: Highlight[] = [
-          {
-            _id: '1',
-            id: '1',
-            title: 'Best Football Touchdowns of the Week',
-            thumbnailUrl: 'https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=800',
-            duration: '8:45',
-            uploadDate: '2 days ago',
-            videoId: 'dQw4w9WgXcQ',
-            category: 'Sports',
-            sport: 'Football',
-            featured: true,
-            views: 125000
-          },
-          {
-            _id: '2',
-            id: '2',
-            title: 'Amazing Basketball Dunks Compilation',
-            thumbnailUrl: 'https://images.pexels.com/photos/1752757/pexels-photo-1752757.jpeg?auto=compress&cs=tinysrgb&w=800',
-            duration: '6:30',
-            uploadDate: '1 day ago',
-            videoId: 'dQw4w9WgXcQ',
-            category: 'Sports',
-            sport: 'Basketball',
-            featured: false,
-            views: 89000
-          },
-          {
-            _id: '3',
-            id: '3',
-            title: 'Soccer Goals That Broke the Internet',
-            thumbnailUrl: 'https://images.pexels.com/photos/274506/pexels-photo-274506.jpeg?auto=compress&cs=tinysrgb&w=800',
-            duration: '10:15',
-            uploadDate: '3 days ago',
-            videoId: 'dQw4w9WgXcQ',
-            category: 'Sports',
-            sport: 'Soccer',
-            featured: true,
-            views: 200000
-          }
-        ];
-        setHighlights(sampleHighlights);
-        setFilteredHighlights(sampleHighlights);
-      }
-    } catch (error) {
-      console.error('Error fetching highlights:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Auto-refresh when admin makes changes
-  useAutoRefresh(fetchHighlights, []);
-
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await fetchHighlights();
-    setRefreshing(false);
-  };
-
-  useEffect(() => {
-    fetchHighlights();
-  }, []);
-
-  useEffect(() => {
-    if (selectedSport === 'All') {
-      setFilteredHighlights(highlights);
-    } else {
-      setFilteredHighlights(highlights.filter(highlight => highlight.sport === selectedSport));
-    }
-  }, [selectedSport, highlights]);
-
-  const handleVideoPress = (videoId: string) => {
-    // Use the highlight ID instead of videoId for proper routing
-    router.push(`/video/${videoId}`);
-  };
-
-  const handleSportFilter = (sport: string) => {
-    setSelectedSport(sport);
-    setShowFilters(false);
-  };
+  const filteredHighlights = selectedSport === 'All' 
+    ? mockHighlights 
+    : mockHighlights.filter(highlight => highlight.sport === selectedSport);
 
   const featuredHighlights = filteredHighlights.filter(highlight => highlight.featured);
   const regularHighlights = filteredHighlights.filter(highlight => !highlight.featured);
 
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <Header title="Sports Highlights" />
-        <View style={styles.loadingContainer}>
-          <LoadingSpinner size={50} color="#FFFFFF" showLogo />
-          <Text style={styles.loadingText}>Loading highlights...</Text>
-        </View>
-      </View>
-    );
-  }
+  const onRefresh = () => {
+    setRefreshing(true);
+    setTimeout(() => setRefreshing(false), 1000);
+  };
+
+  const handleVideoPress = (videoId: string) => {
+    router.push(`/video/${videoId}`);
+  };
 
   return (
     <View style={styles.container}>
@@ -154,7 +40,7 @@ export default function HighlightsScreen() {
           style={styles.filterButton}
           onPress={() => setShowFilters(!showFilters)}
         >
-          <Filter size={20} color="#FFFFFF" />
+          <Filter size={20} color="#A855F7" />
           <Text style={styles.filterButtonText}>
             {selectedSport === 'All' ? 'All Sports' : selectedSport}
           </Text>
@@ -172,7 +58,10 @@ export default function HighlightsScreen() {
                   styles.sportChip,
                   selectedSport === sport && styles.sportChipActive
                 ]}
-                onPress={() => handleSportFilter(sport)}
+                onPress={() => {
+                  setSelectedSport(sport);
+                  setShowFilters(false);
+                }}
               >
                 <Text style={[
                   styles.sportChipText,
@@ -206,9 +95,11 @@ export default function HighlightsScreen() {
                     id: highlight.id,
                     title: highlight.title,
                     thumbnailUrl: highlight.thumbnailUrl,
+                    videoId: highlight.videoId,
                     duration: highlight.duration,
                     uploadDate: highlight.uploadDate,
-                    videoId: highlight.videoId
+                    views: highlight.views,
+                    category: 'Sport'
                   }}
                   onPress={() => handleVideoPress(highlight.id)}
                 />
@@ -218,7 +109,6 @@ export default function HighlightsScreen() {
                 </View>
                 <View style={styles.highlightMeta}>
                   <Text style={styles.sportTag}>{highlight.sport}</Text>
-                  <Text style={styles.viewCount}>{highlight.views.toLocaleString()} views</Text>
                 </View>
               </View>
             ))}
@@ -228,46 +118,32 @@ export default function HighlightsScreen() {
         {/* Regular Highlights */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Play size={24} color="#8B5CF6" />
+            <Play size={24} color="#A855F7" />
             <Text style={styles.sectionTitle}>
               {selectedSport === 'All' ? 'All Highlights' : `${selectedSport} Highlights`}
             </Text>
           </View>
           
-          {regularHighlights.length > 0 ? (
-            regularHighlights.map((highlight) => (
-              <View key={highlight.id} style={styles.highlightCard}>
-                <VideoCard
-                  video={{
-                    id: highlight.id,
-                    title: highlight.title,
-                    thumbnailUrl: highlight.thumbnailUrl,
-                    duration: highlight.duration,
-                    uploadDate: highlight.uploadDate,
-                    videoId: highlight.videoId
-                  }}
-                  onPress={() => handleVideoPress(highlight.id)}
-                />
-                <View style={styles.highlightMeta}>
-                  <Text style={styles.sportTag}>{highlight.sport}</Text>
-                  <Text style={styles.viewCount}>{highlight.views.toLocaleString()} views</Text>
-                </View>
+          {regularHighlights.map((highlight) => (
+            <View key={highlight.id} style={styles.highlightCard}>
+              <VideoCard
+                video={{
+                  id: highlight.id,
+                  title: highlight.title,
+                  thumbnailUrl: highlight.thumbnailUrl,
+                  videoId: highlight.videoId,
+                  duration: highlight.duration,
+                  uploadDate: highlight.uploadDate,
+                  views: highlight.views,
+                  category: 'Sport'
+                }}
+                onPress={() => handleVideoPress(highlight.id)}
+              />
+              <View style={styles.highlightMeta}>
+                <Text style={styles.sportTag}>{highlight.sport}</Text>
               </View>
-            ))
-          ) : (
-            <View style={styles.emptyState}>
-              <Trophy size={64} color="#D1D5DB" />
-              <Text style={styles.emptyText}>
-                {selectedSport === 'All' 
-                  ? 'No highlights available' 
-                  : `No ${selectedSport} highlights found`
-                }
-              </Text>
-              <Text style={styles.emptySubtext}>
-                Check back later for amazing sports moments!
-              </Text>
             </View>
-          )}
+          ))}
         </View>
       </ScrollView>
     </View>
@@ -281,19 +157,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 16,
-  },
-  loadingText: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    fontFamily: 'Cocogoose',
-    fontWeight: 'bold',
-    fontStyle: 'italic',
   },
   filterSection: {
     paddingHorizontal: 16,
@@ -357,9 +220,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    fontFamily: 'Cocogoose',
     fontWeight: 'bold',
-    fontStyle: 'italic',
     color: '#A855F7',
   },
   featuredCard: {
@@ -388,45 +249,17 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   highlightMeta: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     paddingHorizontal: 16,
     paddingTop: 8,
   },
   sportTag: {
-    backgroundColor: '#FFFFFF',
-    color: '#522e8e',
+    backgroundColor: 'rgba(168, 85, 247, 0.2)',
+    color: '#A855F7',
     fontSize: 12,
     fontWeight: '600',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
-  },
-  viewCount: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    opacity: 0.8,
-  },
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: 60,
-    paddingHorizontal: 32,
-  },
-  emptyText: {
-    fontSize: 18,
-    fontFamily: 'Cocogoose',
-    fontWeight: 'bold',
-    fontStyle: 'italic',
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  emptySubtext: {
-    fontSize: 14,
-    color: '#E0E7FF',
-    textAlign: 'center',
-    opacity: 0.8,
+    alignSelf: 'flex-start',
   },
 });

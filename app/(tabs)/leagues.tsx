@@ -1,70 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { View, ScrollView, StyleSheet, RefreshControl, Text } from 'react-native'; // Added Text import
-import Header from '@/components/Header';
-import LeagueCard from '@/components/LeagueCard';
-import LoadingSpinner from '@/components/LoadingSpinner';
+import React, { useState } from 'react';
+import { View, Text, ScrollView, StyleSheet, RefreshControl } from 'react-native';
+import Header from '../../src/components/Header';
+import LeagueCard from '../../src/components/LeagueCard';
+import { mockLeagues } from '../../src/data/mockData';
 import { useRouter } from 'expo-router';
-import { useAutoRefresh } from '@/hooks/useRealTimeUpdates';
-import apiClient from '@/lib/api';
-
-interface League {
-  id: string;
-  name: string;
-  logoUrl?: string;
-  matchCount: number;
-  season: string;
-}
 
 export default function LeaguesScreen() {
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
-  const [leagues, setLeagues] = useState<League[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  const fetchLeagues = async () => {
-    try {
-      const response = await apiClient.getLeagues();
-      if (response.data) {
-        setLeagues(response.data);
-      } else {
-        console.error('Failed to fetch leagues:', response.error);
-      }
-    } catch (error) {
-      console.error('Error fetching leagues:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Auto-refresh when admin makes changes
-  useAutoRefresh(fetchLeagues, []);
-
-  const onRefresh = async () => {
+  const onRefresh = () => {
     setRefreshing(true);
-    await fetchLeagues();
-    setRefreshing(false);
+    setTimeout(() => setRefreshing(false), 1000);
   };
-
-  useEffect(() => {
-    fetchLeagues();
-  }, []);
 
   const handleLeaguePress = (leagueId: string) => {
-    // Navigate to league details
     router.push(`/league/${leagueId}`);
   };
-
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <Header title="Leagues" />
-        <View style={styles.loadingContainer}>
-          <LoadingSpinner size={50} color="#FFFFFF" showLogo />
-          <Text style={styles.loadingText} allowFontScaling={false}>Loading leagues...</Text>
-        </View>
-      </View>
-    );
-  }
 
   return (
     <View style={styles.container}>
@@ -76,8 +28,15 @@ export default function LeaguesScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Football Leagues</Text>
+          <Text style={styles.headerSubtitle}>
+            Follow your favorite leagues and stay updated with matches
+          </Text>
+        </View>
+
         <View style={styles.leaguesList}>
-          {leagues.map((league) => (
+          {mockLeagues.map((league) => (
             <LeagueCard
               key={league.id}
               league={league}
@@ -98,21 +57,23 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 16,
+  header: {
+    padding: 16,
+    marginTop: 16,
   },
-  loadingText: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    fontFamily: 'Cocogoose',
+  headerTitle: {
+    fontSize: 28,
     fontWeight: 'bold',
-    fontStyle: 'italic',
+    color: '#A855F7',
+    marginBottom: 8,
+  },
+  headerSubtitle: {
+    fontSize: 16,
+    color: '#C084FC',
+    lineHeight: 22,
   },
   leaguesList: {
-    paddingTop: 16,
+    paddingTop: 8,
     paddingBottom: 32,
   },
 });

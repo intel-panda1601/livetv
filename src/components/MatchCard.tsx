@@ -1,20 +1,10 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { Calendar, MapPin } from 'lucide-react-native';
+import { Calendar, MapPin, Trophy } from 'lucide-react-native';
+import { Match } from '../types';
 
 interface MatchCardProps {
-  match: {
-    id: string;
-    team1: string;
-    team2: string;
-    date: string;
-    time: string;
-    status: 'live' | 'upcoming' | 'completed';
-    venue?: string;
-    imageUrl?: string;
-    team1Logo?: string;
-    team2Logo?: string;
-  };
+  match: Match;
   onPress: () => void;
 }
 
@@ -37,10 +27,14 @@ export default function MatchCard({ match, onPress }: MatchCardProps) {
       {match.imageUrl && (
         <Image source={{ uri: match.imageUrl }} style={styles.image} />
       )}
+      
       <View style={styles.content}>
         <View style={styles.statusContainer}>
           <View style={[styles.statusDot, { backgroundColor: getStatusColor() }]} />
           <Text style={styles.statusText}>{match.status.toUpperCase()}</Text>
+          {match.status === 'live' && (
+            <Text style={styles.liveText}>LIVE</Text>
+          )}
         </View>
         
         <View style={styles.teamsContainer}>
@@ -48,28 +42,40 @@ export default function MatchCard({ match, onPress }: MatchCardProps) {
             {match.team1Logo && (
               <Image source={{ uri: match.team1Logo }} style={styles.teamLogo} />
             )}
-            <Text style={styles.teamText}>{match.team1}</Text>
+            <Text style={styles.teamName}>{match.team1}</Text>
+            {match.score && (
+              <Text style={styles.score}>{match.score.team1}</Text>
+            )}
           </View>
+          
           <Text style={styles.vsText}>VS</Text>
+          
           <View style={styles.teamSection}>
             {match.team2Logo && (
               <Image source={{ uri: match.team2Logo }} style={styles.teamLogo} />
             )}
-            <Text style={styles.teamText}>{match.team2}</Text>
+            <Text style={styles.teamName}>{match.team2}</Text>
+            {match.score && (
+              <Text style={styles.score}>{match.score.team2}</Text>
+            )}
           </View>
         </View>
         
         <View style={styles.detailsContainer}>
           <View style={styles.detail}>
-            <Calendar size={16} color="#8B5CF6" />
+            <Calendar size={16} color="#A855F7" />
             <Text style={styles.detailText}>{match.date} • {match.time}</Text>
           </View>
           {match.venue && (
             <View style={styles.detail}>
-              <MapPin size={16} color="#8B5CF6" />
+              <MapPin size={16} color="#A855F7" />
               <Text style={styles.detailText}>{match.venue}</Text>
             </View>
           )}
+          <View style={styles.detail}>
+            <Trophy size={16} color="#A855F7" />
+            <Text style={styles.detailText}>{match.league}</Text>
+          </View>
         </View>
       </View>
     </TouchableOpacity>
@@ -82,14 +88,14 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginHorizontal: 16,
     marginVertical: 8,
-    shadowColor: '#6B46C1',
+    shadowColor: '#A855F7',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.3,
     shadowRadius: 12,
-    elevation: 5,
+    elevation: 8,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(168, 85, 247, 0.2)',
+    borderColor: 'rgba(168, 85, 247, 0.3)',
   },
   image: {
     width: '100%',
@@ -115,10 +121,20 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#C084FC',
   },
+  liveText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#EF4444',
+    marginLeft: 8,
+    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
   teamsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     marginBottom: 16,
   },
   teamSection: {
@@ -132,13 +148,16 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     resizeMode: 'cover',
   },
-  teamText: {
-    fontSize: 18,
-    fontFamily: 'Cocogoose',
+  teamName: {
+    fontSize: 16,
     fontWeight: 'bold',
-    fontStyle: 'italic',
     color: '#A855F7',
     textAlign: 'center',
+  },
+  score: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
   },
   vsText: {
     fontSize: 14,

@@ -1,116 +1,80 @@
 import { Tabs } from 'expo-router';
-import { Chrome as Home, Trophy, Play, Settings } from 'lucide-react-native';
-import { SafeAreaView, Platform, Dimensions } from 'react-native';
-import type { BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
-
-type TabBarIconProps = {
-  size: number;
-  color: string;
-};
-
-const { width, height } = Dimensions.get('window');
+import { Home, Trophy, Play, Star, Settings } from 'lucide-react-native';
+import { SafeAreaView } from 'react-native';
 
 export default function TabLayout() {
-  const screenOptions: BottomTabNavigationOptions = {
-    headerShown: false,
-    tabBarActiveTintColor: '#A855F7',
-    tabBarInactiveTintColor: '#9CA3AF',
-    tabBarStyle: {
-      backgroundColor: '#374151',
-      borderTopColor: '#374151',
-      paddingTop: 8,
-      paddingBottom: Platform.select({ 
-        android: 12, // Reduced from 8 to bring it up
-        ios: 24 
-      }),
-      height: Platform.select({ 
-        android: 65, // Reduced from 70 to make it more compact
-        ios: 90 
-      }),
-      paddingHorizontal: width > 400 ? width * 0.15 : 8, // More responsive padding
-      position: 'absolute',
-      bottom: 0,
-      left: 0,
-      right: 0,
-      elevation: 8, // Add elevation for Android
-      shadowColor: '#000', // Add shadow for iOS
-      shadowOffset: { width: 0, height: -2 },
-      shadowOpacity: 0.3,
-      shadowRadius: 8,
-    },
-    tabBarLabelStyle: {
-      fontSize: 12,
-      fontWeight: '600',
-      paddingBottom: Platform.select({ 
-        android: 2, // Reduced from 4
-        ios: 0 
-      }),
-      marginTop: 2,
-    },
-    tabBarIconStyle: {
-      marginTop: Platform.select({
-        android: 2,
-        ios: 0,
-      }),
-    },
-  };
-
   return (
-    <SafeAreaView style={{ 
-      flex: 1, 
-      backgroundColor: '#FFFFFF',
-      paddingBottom: Platform.select({
-        android: 0, // Remove extra padding on Android
-        ios: 0,
-      }),
-    }}>
-      <Tabs screenOptions={screenOptions}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#000000' }}>
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+          tabBarActiveTintColor: '#A855F7',
+          tabBarInactiveTintColor: '#9CA3AF',
+          tabBarStyle: {
+            backgroundColor: '#374151',
+            borderTopColor: '#374151',
+            paddingTop: 8,
+            paddingBottom: 24,
+            height: 90,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: -2 },
+            shadowOpacity: 0.3,
+            shadowRadius: 8,
+            elevation: 8,
+          },
+          tabBarLabelStyle: {
+            fontSize: 12,
+            fontWeight: '600',
+            paddingBottom: 4,
+          },
+        }}
+      >
         <Tabs.Screen
           name="index"
           options={{
             title: 'Home',
-            tabBarIcon: ({ size, color }: TabBarIconProps) => (
+            tabBarIcon: ({ size, color }) => (
               <Home size={size} color={color} />
             ),
           }}
         />
         <Tabs.Screen
-         name="leagues"
-         options={{
-           title: 'Leagues',
-           tabBarIcon: ({ size, color }: TabBarIconProps) => (
-             <Trophy size={size} color={color} />
-           ),
-         }}
-       />
-       <Tabs.Screen
-         name="videos"
-         options={{
-           title: 'Videos',
-           tabBarIcon: ({ size, color }: TabBarIconProps) => (
-             <Play size={size} color={color} />
-           ),
-         }}
-       />
-        <Tabs.Screen
-          name="highlights"
+          name="leagues"
           options={{
-            title: 'Highlights',
-            tabBarIcon: ({ size, color }: TabBarIconProps) => (
+            title: 'Leagues',
+            tabBarIcon: ({ size, color }) => (
               <Trophy size={size} color={color} />
             ),
           }}
         />
-       <Tabs.Screen
-         name="admin"
-         options={{
-           title: 'Admin',
-           tabBarIcon: ({ size, color }: TabBarIconProps) => (
-             <Settings size={size} color={color} />
-           ),
-         }}
-       />
-     </Tabs>
+        <Tabs.Screen
+          name="videos"
+          options={{
+            title: 'Videos',
+            tabBarIcon: ({ size, color }) => (
+              <Play size={size} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="highlights"
+          options={{
+            title: 'Highlights',
+            tabBarIcon: ({ size, color }) => (
+              <Star size={size} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="admin"
+          options={{
+            title: 'Admin',
+            tabBarIcon: ({ size, color }) => (
+              <Settings size={size} color={color} />
+            ),
+          }}
+        />
+      </Tabs>
     </SafeAreaView>
   );
 }
