@@ -2,13 +2,12 @@ const { getDefaultConfig } = require('@expo/metro-config');
 
 const config = getDefaultConfig(__dirname);
 
-// Set the app root for Expo Router
-config.resolver.platforms = ['ios', 'android', 'native', 'web'];
-
 module.exports = {
   ...config,
+  projectRoot: __dirname,
   resolver: {
     ...config.resolver,
+    platforms: ['ios', 'android', 'native', 'web'],
     requireCycleIgnorePatterns: [/(^|\/|\\)node_modules($|\/|\\)/]
   }
 };
