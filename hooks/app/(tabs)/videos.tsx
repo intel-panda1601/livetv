@@ -362,7 +362,9 @@ const styles = StyleSheet.create({
   },
   categoryTitle: {
     fontSize: 20,
-    fontFamily: 'Sportypo',
+    fontFamily: 'Cocogoose',
+    fontWeight: 'bold',
+    fontStyle: 'italic',
     color: '#FFFFFF',
   },
   videosGrid: {

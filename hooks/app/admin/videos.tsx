@@ -587,7 +587,9 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 18,
-    fontFamily: 'Sportypo',
+    fontFamily: 'Cocogoose',
+    fontWeight: 'bold',
+    fontStyle: 'italic',
     color: '#FFFFFF',
   },
   loadingSubtext: {

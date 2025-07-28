@@ -84,11 +84,6 @@ export default function AdminLoginScreen() {
         
         // Clear password field after failed attempt
         setPassword('');
-        Alert.alert(
-          'Login Failed',
-          'Invalid email or password. Please try again.',
-          [{ text: 'OK', style: 'default' }]
-        );
       }
     }, 1000);
   };

@@ -712,7 +712,9 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-    fontFamily: 'Sportypo',
+    fontFamily: 'Cocogoose',
+    fontWeight: 'bold',
+    fontStyle: 'italic',
     color: '#6B46C1',
   },
   cancelButton: {

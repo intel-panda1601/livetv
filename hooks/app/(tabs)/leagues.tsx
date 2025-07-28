@@ -107,7 +107,9 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 16,
     color: '#FFFFFF',
-    fontFamily: 'Sportypo',
+    fontFamily: 'Cocogoose',
+    fontWeight: 'bold',
+    fontStyle: 'italic',
   },
   leaguesList: {
     paddingTop: 16,
